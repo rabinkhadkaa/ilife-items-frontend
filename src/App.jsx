@@ -1,9 +1,9 @@
-import ItemList from './components/ItemList'
+import React from 'react';
+import ItemList from './pages/ItemList';
 
 function App() {
   return (
     <div>
-      <h2>ilifes Items</h2>
       <ItemList />
     </div>
   );

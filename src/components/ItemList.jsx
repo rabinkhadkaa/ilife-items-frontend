@@ -11,7 +11,7 @@ function ItemList() {
 
   return (
     <div>
-      <h3>My Items</h3>
+      <h3>My Items-frontend:</h3>
       <ul>
         {items.map(item => (
           <li key={item.id}>{item.name}</li>
