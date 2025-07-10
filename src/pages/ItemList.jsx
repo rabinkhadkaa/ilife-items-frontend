@@ -25,8 +25,6 @@ const sampleItems = [
   },
 ];
 
-
-
 const ItemList = () => {
   return (
     <div className="item-list-container">
