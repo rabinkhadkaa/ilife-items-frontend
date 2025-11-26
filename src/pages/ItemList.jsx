@@ -1,42 +1,57 @@
-import React from 'react';
-import './ItemList.css'; // optional if you want styling
+import React, { useEffect, useState } from "react";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './ItemList.css';
 
-const sampleItems = [
-  {
-    id: 1,
-    name: 'Wireless Headphones',
-    description: 'High quality wireless headphones with noise cancellation.',
-    price: '$99.99',
-    image: 'https://via.placeholder.com/200x150?text=Headphones',
-  },
-  {
-    id: 2,
-    name: 'Smartwatch',
-    description: 'Fitness smartwatch with heart-rate tracking.',
-    price: '$149.99',
-    image: 'https://via.placeholder.com/200x150?text=Smartwatch',
-  },
-  {
-    id: 3,
-    name: 'Bluetooth Speaker',
-    description: 'Portable speaker with powerful sound.',
-    price: '$39.99',
-    image: 'https://via.placeholder.com/200x150?text=Speaker',
-  },
-];
+const ItemCard = ({ item }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="col-md-4 col-lg-3 mb-4">
+      <div className="card h-100 shadow-sm fixed-card">
+        <img
+          src={item.image || "https://via.placeholder.com/200x150?text=No+Image"}
+          className="card-img-top fixed-card-img"
+          alt={item.title}
+        />
+        <div className="card-body d-flex flex-column">
+          <h5 className="card-title text-truncate">{item.title}</h5>
+          <p className={`card-text ${expanded ? 'expanded' : 'collapsed'}`}>
+            {item.description}
+          </p>
+          {item.description.length > 80 && (
+            <button
+              className="btn btn-link p-0 mt-auto"
+              onClick={() => setExpanded(!expanded)}
+            >
+              {expanded ? 'See less' : 'See more'}
+            </button>
+          )}
+          <strong className="mt-auto">${item.price}</strong>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const ItemList = () => {
+  const [items, setItems] = useState([]);
+
+  useEffect(() => {
+    fetch("https://fakestoreapi.com/products")   // TEMP TEST API
+      .then(res => res.json())
+      .then(data => setItems(data))
+      .catch(err => console.error("API Error:", err));
+  }, []);
+
   return (
-    <div className="item-list-container">
-      <h1>Our Products</h1>
-      <div className="items-grid">
-        {sampleItems.map(item => (
-          <div className="item-card" key={item.id}>
-            <img src={item.image} alt={item.name} />
-            <h2>{item.name}</h2>
-            <p>{item.description}</p>
-            <strong>{item.price}</strong>
-          </div>
+    <div className="container my-4">
+      <h1 className="mb-4 text-center">Marketplace Products</h1>
+
+      {items.length === 0 && <p className="text-center">Loading items…</p>}
+
+      <div className="row">
+        {items.map(item => (
+          <ItemCard key={item.id} item={item} />
         ))}
       </div>
     </div>
