@@ -1,0 +1,120 @@
+trigger:
+  - main
+
+parameters:
+  - name: environment
+    type: string
+    default: 'prod'
+    values:
+      - prod
+      - qa
+      - stage
+      - local
+
+variables:
+  - name: dockerRegistryServiceConnection
+    value: 'ilifes-acr-docker'
+  - name: acrName
+    value: 'ilifesregistry.azurecr.io'
+  - name: imageName
+    value: 'buildprocure-frontend'
+  - name: sshServiceConnection
+    value: 'ilifes-ssh-connection'
+  - name: dockerImageTag
+    value: 'latest'
+  - name: VITE_API_URL
+    value: ${{ if eq(parameters.environment, 'prod') }}: "https://api.buildprocure.com"
+           ${{ if eq(parameters.environment, 'qa') }}: "https://qa-api.buildprocure.com"
+           ${{ if eq(parameters.environment, 'stage') }}: "https://stage-api.buildprocure.com"
+           ${{ if eq(parameters.environment, 'local') }}: "http://localhost:8081"
+
+stages:
+
+# ------------------------------
+# Stage 1: Build Docker Image
+# ------------------------------
+- stage: Build
+  displayName: 'Build and Push Frontend Docker Image'
+  jobs:
+    - job: BuildFrontend
+      displayName: 'Build Frontend Image'
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+
+        # Checkout frontend repo
+        - checkout: self
+
+        # Install Node
+        - task: NodeTool@0
+          inputs:
+            versionSpec: '18.x'
+          displayName: 'Install Node.js'
+
+        # Install dependencies & build
+        - script: |
+            npm ci
+            npm run build:prod
+          displayName: 'Build React Frontend'
+
+        # Debug built dist folder
+        - script: |
+            ls -la dist
+          displayName: 'Show dist folder'
+
+        # Login to ACR
+        - task: Docker@2
+          displayName: 'Login to ACR'
+          inputs:
+            command: login
+            containerRegistry: $(dockerRegistryServiceConnection)
+
+        # Build & push Docker image
+        - task: Docker@2
+          displayName: 'Build and Push Frontend Image'
+          inputs:
+            command: buildAndPush
+            containerRegistry: $(dockerRegistryServiceConnection)
+            repository: $(imageName)
+            dockerfile: $(Build.SourcesDirectory)/Dockerfile
+            buildContext: $(Build.SourcesDirectory)
+            tags: $(dockerImageTag)
+            arguments: "--build-arg VITE_API_URL=$(VITE_API_URL)"
+
+# ------------------------------
+# Stage 2: Deploy to Server
+# ------------------------------
+- stage: Deploy
+  displayName: 'Deploy Frontend Container to Server'
+  dependsOn: Build
+  jobs:
+    - job: DeployFrontend
+      displayName: 'Deploy via SSH'
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+
+        # SSH into server & pull/run container
+        - task: SSH@0
+          displayName: 'Deploy Frontend Container'
+          inputs:
+            sshEndpoint: $(sshServiceConnection)
+            runOptions: 'inline'
+            inline: |
+              echo "Logging into ACR on remote server..."
+              docker login $(acrName) --username $(DOCKER_USERNAME) --password $(DOCKER_PASSWORD)
+
+              echo "Pulling latest frontend image..."
+              docker pull $(acrName)/$(imageName):$(dockerImageTag)
+
+              echo "Stopping existing frontend container if running..."
+              docker stop buildprocure-frontend || true
+              docker rm buildprocure-frontend || true
+
+              echo "Running frontend container..."
+              docker run -d --name buildprocure-frontend -p 80:80 \
+                -e VITE_API_URL=$(VITE_API_URL) \
+                $(acrName)/$(imageName):$(dockerImageTag)
+
+              echo "Frontend deployment complete."
+              docker ps -a
