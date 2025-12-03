@@ -34,7 +34,7 @@ stages:
     - job: BuildFrontend
       displayName: 'Build Frontend Image'
       pool:
-        vmImage: 'ubuntu-latest'
+        name: 'Default'
       steps:
 
         # Checkout frontend repo
@@ -99,7 +99,7 @@ stages:
     - job: DeployFrontend
       displayName: 'Deploy via SSH'
       pool:
-        vmImage: 'ubuntu-latest'
+        name: 'Default'
       steps:
 
         # SSH into server & pull/run container
