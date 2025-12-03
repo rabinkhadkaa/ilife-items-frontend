@@ -59,15 +59,17 @@ stages:
             fi
           displayName: 'Set VITE_API_URL for environment'
 
-        # Install dependencies & build
+        # Install dependencies & build in frontend folder
         - script: |
+            cd $(Build.SourcesDirectory)/frontend
             npm ci
-            npm run build:prod
+            npm run build:${{ parameters.environment }}
           displayName: 'Build React Frontend'
 
         # Debug built dist folder
         - script: |
-            ls -la dist
+            cd $(Build.SourcesDirectory)/frontend/dist
+            ls -la
           displayName: 'Show dist folder'
 
         # Login to ACR
