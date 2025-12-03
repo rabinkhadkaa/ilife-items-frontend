@@ -1,5 +1,5 @@
 trigger:
-  - main
+  - AB#27-main
 
 parameters:
   - name: environment
