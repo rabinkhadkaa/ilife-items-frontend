@@ -22,11 +22,6 @@ variables:
     value: 'ilifes-ssh-connection'
   - name: dockerImageTag
     value: 'latest'
-  - name: VITE_API_URL
-    value: ${{ if eq(parameters.environment, 'prod') }}: "https://api.buildprocure.com"
-           ${{ if eq(parameters.environment, 'qa') }}: "https://qa-api.buildprocure.com"
-           ${{ if eq(parameters.environment, 'stage') }}: "https://stage-api.buildprocure.com"
-           ${{ if eq(parameters.environment, 'local') }}: "http://localhost:8081"
 
 stages:
 
@@ -50,6 +45,19 @@ stages:
           inputs:
             versionSpec: '18.x'
           displayName: 'Install Node.js'
+
+        # Set VITE_API_URL dynamically based on environment
+        - script: |
+            if [ "${{ parameters.environment }}" = "prod" ]; then
+              echo "##vso[task.setvariable variable=VITE_API_URL]https://api.buildprocure.com"
+            elif [ "${{ parameters.environment }}" = "qa" ]; then
+              echo "##vso[task.setvariable variable=VITE_API_URL]https://qa-api.buildprocure.com"
+            elif [ "${{ parameters.environment }}" = "stage" ]; then
+              echo "##vso[task.setvariable variable=VITE_API_URL]https://stage-api.buildprocure.com"
+            else
+              echo "##vso[task.setvariable variable=VITE_API_URL]http://localhost:8081"
+            fi
+          displayName: 'Set VITE_API_URL for environment'
 
         # Install dependencies & build
         - script: |
