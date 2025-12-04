@@ -119,13 +119,13 @@ stages:
 
               echo "🚀 Frontend deployed successfully!"
               docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
-              
+
 - stage: BuildBackend
   displayName: "Build + Push Backend Image"
   jobs:
     - job: BuildBackendJob
       pool:
-        vmImage: ubuntu-latest
+        name: 'Default'
       steps:
         - checkout: self
 
@@ -144,7 +144,7 @@ stages:
   jobs:
     - job: DeployBackendJob
       pool:
-        vmImage: ubuntu-latest
+        name: 'Default'
       steps:
         - task: SSH@0
           inputs:
