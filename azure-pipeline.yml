@@ -62,9 +62,11 @@ stages:
         # Install dependencies & build in frontend folder
         - script: |
             cd $(Build.SourcesDirectory)/frontend
+            export VITE_API_URL=$(VITE_API_URL)
             npm ci
             npm run build:${{ parameters.environment }}
           displayName: 'Build React Frontend'
+
 
         # Debug built dist folder
         - script: |
