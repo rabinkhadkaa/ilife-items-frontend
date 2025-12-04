@@ -3,11 +3,12 @@ FROM node:22-alpine AS build
 WORKDIR /app
 
 # Pass VITE_API_URL as build-arg
-ARG BUILD_MODE=dev
+ARG BUILD_MODE=prod
 ARG VITE_API_URL
-ENV BUILD_MODE=${BUILD_MODE}
-ENV VITE_API_URL=${VITE_API_URL}
+ENV BUILD_MODE=$BUILD_MODE
+ENV VITE_API_URL=$VITE_API_URL
 
+RUN echo "Building in mode: $BUILD_MODE with VITE_API_URL: $VITE_API_URL"
 COPY package.json package-lock.json ./
 RUN npm install
 
