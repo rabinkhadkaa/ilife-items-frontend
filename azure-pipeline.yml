@@ -70,7 +70,9 @@ stages:
         - script: |
             cd $(Build.SourcesDirectory)/frontend/dist
             ls -la
-          displayName: 'Show dist folder'
+            #display VITE_API_URL value
+            echo "VITE_API_URL: $(VITE_API_URL)"
+          displayName: 'Show dist folder and VITE_API_URL'
 
         # Login to ACR
         - task: Docker@2
@@ -89,7 +91,7 @@ stages:
             dockerfile: $(Build.SourcesDirectory)/frontend/Dockerfile
             buildContext: $(Build.SourcesDirectory)/frontend
             tags: $(dockerImageTag)
-            arguments: "--build-arg VITE_API_URL=$(VITE_API_URL)"
+            arguments: "--build-arg VITE_API_URL=$(VITE_API_URL) --build-arg BUILD_MODE=${{ parameters.environment }}"
 
 # ------------------------------
 # Stage 2: Deploy to Server
