@@ -86,8 +86,8 @@ stages:
             command: buildAndPush
             containerRegistry: $(dockerRegistryServiceConnection)
             repository: $(imageName)
-            dockerfile: $(Build.SourcesDirectory)/Dockerfile
-            buildContext: $(Build.SourcesDirectory)
+            dockerfile: $(Build.SourcesDirectory)/frontend/Dockerfile
+            buildContext: $(Build.SourcesDirectory)/frontend
             tags: $(dockerImageTag)
             arguments: "--build-arg VITE_API_URL=$(VITE_API_URL)"
 
