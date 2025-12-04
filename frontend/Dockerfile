@@ -11,7 +11,7 @@ ENV VITE_API_URL=${VITE_API_URL}
 COPY package.json package-lock.json ./
 RUN npm install
 
-COPY . .
+COPY . ./
 RUN npm run build:${BUILD_MODE}   # VITE_API_URL will now be used in the build
 
 # Step 2: Serve using Nginx
