@@ -95,36 +95,27 @@ stages:
 # Stage 2: Deploy to Server
 # ------------------------------
 - stage: Deploy
-  displayName: 'Deploy Frontend Container to Server'
   dependsOn: Build
   jobs:
-    - job: DeployFrontend
-      displayName: 'Deploy via SSH'
+    - job: DeployContainer
       pool:
         name: 'Default'
       steps:
-
-        # SSH into server & pull/run container
         - task: SSH@0
-          displayName: 'Deploy Frontend Container'
+          displayName: Deploy to Server
           inputs:
             sshEndpoint: $(sshServiceConnection)
-            runOptions: 'inline'
+            runOptions: inline
             inline: |
-              echo "Logging into ACR on remote server..."
-              docker login $(acrName) --username $(DOCKER_USERNAME) --password $(DOCKER_PASSWORD)
-
-              echo "Pulling latest frontend image..."
+              echo "Pulling latest image..."
               docker pull $(acrName)/$(imageName):$(dockerImageTag)
 
-              echo "Stopping existing frontend container if running..."
-              docker stop buildprocure-frontend || true
-              docker rm buildprocure-frontend || true
+              echo "Restarting container..."
+              docker stop ilifes-items-frontend || true
+              docker rm ilifes-items-frontend || true
 
-              echo "Running frontend container..."
-              docker run -d --name buildprocure-frontend -p 80:80 \
-                -e VITE_API_URL=$(VITE_API_URL) \
+              docker run -d --name ilifes-items-frontend -p 3000:80 \
                 $(acrName)/$(imageName):$(dockerImageTag)
 
-              echo "Frontend deployment complete."
-              docker ps -a
+              echo "🚀 Frontend deployed successfully!"
+              docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
