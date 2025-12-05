@@ -93,7 +93,7 @@ stages:
             dockerfile: $(Build.SourcesDirectory)/frontend/Dockerfile
             buildContext: $(Build.SourcesDirectory)/frontend
             tags: $(dockerImageTag)
-            buildArguments: |
+            buildArgs: |
               VITE_API_URL=$(VITE_API_URL)
               BUILD_MODE=${{ parameters.environment }}
 # ------------------------------
