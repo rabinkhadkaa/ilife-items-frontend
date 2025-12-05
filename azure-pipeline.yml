@@ -96,6 +96,7 @@ stages:
             buildContext: $(Build.SourcesDirectory)/frontend
             tags: $(dockerImageTag)
             buildArgs: |
+              CACHE_INVALIDATOR=$(Build.BuildId)
               VITE_API_URL=$(VITE_API_URL)
               BUILD_MODE=${{ parameters.environment }}
             buildOptions: '--no-cache'
