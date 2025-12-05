@@ -96,7 +96,7 @@ stages:
             buildArgs: |
               VITE_API_URL=$(VITE_API_URL)
               BUILD_MODE=${{ parameters.environment }}
-            arguments: '--no-cache'
+            buildOptions: '--no-cache'
 # ------------------------------
 # Stage 2: Deploy to Server
 # ------------------------------
