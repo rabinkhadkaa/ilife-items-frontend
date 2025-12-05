@@ -83,11 +83,13 @@ stages:
             command: login
             containerRegistry: $(dockerRegistryServiceConnection)
 
-        # Build & push Docker image
+        # ============================
+        # Step 1: Build image (no cache)
+        # ============================
         - task: Docker@2
-          displayName: 'Build and Push Frontend Image'
+          displayName: 'Build Frontend Image'
           inputs:
-            command: buildAndPush
+            command: build
             containerRegistry: $(dockerRegistryServiceConnection)
             repository: $(imageName)
             dockerfile: $(Build.SourcesDirectory)/frontend/Dockerfile
@@ -97,7 +99,18 @@ stages:
               VITE_API_URL=$(VITE_API_URL)
               BUILD_MODE=${{ parameters.environment }}
             buildOptions: '--no-cache'
-# ------------------------------
+
+        # ============================
+        # Step 2: Push image
+        # ============================
+        - task: Docker@2
+          displayName: 'Push Frontend Image'
+          inputs:
+            command: push
+            containerRegistry: $(dockerRegistryServiceConnection)
+            repository: $(imageName)
+            tags: $(dockerImageTag)
+
 # Stage 2: Deploy to Server
 # ------------------------------
 - stage: Deploy
