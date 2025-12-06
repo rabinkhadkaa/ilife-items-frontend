@@ -24,6 +24,10 @@ $app->add(function ($request, $handler) {
         ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
 });
 
+// Handle preflight OPTIONS requests
+$app->options('/{routes:.+}', function ($request, $response, $args) {
+    return $response;
+});
 // Load database setup
 (require __DIR__ . '/../src/database.php')();
 
