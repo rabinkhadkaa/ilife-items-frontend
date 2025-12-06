@@ -1,36 +1,29 @@
-import React, { useEffect, useState } from "react";
+import { Routes, Route } from "react-router-dom";
 import ItemList from "./components/itemList";
+import ItemDetails from "./components/itemDetails";
 import api from "./services/api";
-import { toast } from "react-toastify";
 
 function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/item/:id" element={<ItemDetails />} />
+    </Routes>
+  );
+}
+
+function Home() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const loadItems = async () => {
-    try {
-      const data = await api.get("/api/items");
-      setItems(data);
-    } catch (error) {
-      toast.error("Failed to load items");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    loadItems();
+    api.get("/api/items").then(setItems).finally(() => setLoading(false));
   }, []);
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1 style={{ marginBottom: "20px" }}>Marketplace</h1>
-
-      {loading ? (
-        <p style={{ fontSize: "18px" }}>Loading items...</p>
-      ) : (
-        <ItemList items={items} />
-      )}
+      <h1>Marketplace</h1>
+      {loading ? <p>Loading...</p> : <ItemList items={items} />}
     </div>
   );
 }
