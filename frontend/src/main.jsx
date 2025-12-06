@@ -7,8 +7,10 @@ import "react-toastify/dist/ReactToastify.css";
 import { BrowserRouter } from "react-router-dom";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
-    <App />
-    <ToastContainer position="top-right" autoClose={3000} />
-  </BrowserRouter>
+  <React.StrictMode>
+    <BrowserRouter>
+      <App />
+      <ToastContainer position="top-right" autoClose={3000} />
+    </BrowserRouter>
+  </React.StrictMode>
 );

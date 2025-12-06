@@ -1,25 +1,35 @@
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../services/api";
-import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 export default function ItemDetails() {
   const { id } = useParams();
   const [item, setItem] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get(`/api/items/${id}`).then(setItem);
+    const loadItem = async () => {
+      try {
+        const data = await api.get(`/api/items/${id}`);
+        setItem(data);
+      } catch (error) {
+        toast.error("Failed to load item details");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadItem();
   }, [id]);
 
-  if (!item) return <p>Loading...</p>;
+  if (loading) return <p>Loading...</p>;
+  if (!item) return <p>Item not found</p>;
 
   return (
-    <div style={{padding:"20px"}}>
-      <h2>{item.name}</h2>
-      <p><b>Price:</b> ${item.price}</p>
-
-      <hr/>
-      <h4>Description</h4>
-      <p>{item.description || "No description available."}</p>
+    <div style={{ padding: "20px" }}>
+      <h1>{item.name}</h1>
+      <p>Price: ${item.price}</p>
+      <p>Description: {item.description || "No description available"}</p>
     </div>
   );
 }
