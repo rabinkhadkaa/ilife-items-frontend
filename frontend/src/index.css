@@ -29,7 +29,12 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
-
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+}
 h1 {
   font-size: 3.2em;
   line-height: 1.1;

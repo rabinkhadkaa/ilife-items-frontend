@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import ItemList from "./components/itemList";
 import ItemDetails from "./components/itemDetails"; // We'll create this
+import Navbar from "./components/navbar"; // import the Navbar
 import api from "./services/api";
 import { toast } from "react-toastify";
 
 function App() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null); // track logged-in user
 
   const loadItems = async () => {
     try {
@@ -24,13 +26,26 @@ function App() {
     loadItems();
   }, []);
 
+  // Login / logout handlers
+  const handleLogin = () => {
+    // Example: simulate login
+    setUser({ name: "John Doe" });
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+  };
+
   return (
+    <div>
+      {/* Navbar */}
+      <Navbar user={user} onLogin={handleLogin} onLogout={handleLogout} />
+
     <Routes>
       <Route
         path="/"
         element={
           <div style={{ padding: "20px" }}>
-            <h1 style={{ marginBottom: "20px" }}>Marketplace</h1>
             {loading ? (
               <p style={{ fontSize: "18px" }}>Loading items...</p>
             ) : (
@@ -41,6 +56,7 @@ function App() {
       />
       <Route path="/item/:id" element={<ItemDetails />} />
     </Routes>
+    </div>
   );
 }
 
