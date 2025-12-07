@@ -11,7 +11,7 @@ export default function ItemDetails() {
   useEffect(() => {
     const loadItem = async () => {
       try {
-        const data = await api.get(`/api/items/${id}`);
+        const data = await api.get(`/api/item/${id}`);
         setItem(data);
       } catch (error) {
         toast.error("Failed to load item details");
