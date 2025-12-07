@@ -1,21 +1,31 @@
 <?php
 
-use Illuminate\Database\Capsule\Manager as Capsule;
+namespace App;
 
-return function () {
-    $capsule = new Capsule;
+use PDO;
 
-    $capsule->addConnection([
-        'driver'    => $_ENV['DB_DRIVER'] ?? 'mysql',
-        'host'      => $_ENV['DB_HOST'] ?? '127.0.0.1',
-        'database'  => $_ENV['DB_DATABASE'] ?? 'buildprocure',
-        'username'  => $_ENV['DB_USERNAME'] ?? 'root',
-        'password'  => $_ENV['DB_PASSWORD'] ?? '',
-        'charset'   => 'utf8mb4',
-        'collation' => 'utf8mb4_unicode_ci',
-        'prefix'    => '',
-    ]);
+class Database
+{
+    private static $instance = null;
 
-    $capsule->setAsGlobal();
-    $capsule->bootEloquent();
-};
+    public static function getConnection()
+    {
+        if (self::$instance === null) {
+            $host = $_ENV['DB_HOST'];
+            $db   = $_ENV['DB_DATABASE'];
+            $user = $_ENV['DB_USERNAME'];
+            $pass = $_ENV['DB_PASSWORD'];
+            $port = $_ENV['DB_PORT'] ?? 3306;
+
+            $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4";
+
+            self::$instance = new PDO($dsn, $user, $pass, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+            ]);
+        }
+
+        return self::$instance;
+    }
+}
+
+
