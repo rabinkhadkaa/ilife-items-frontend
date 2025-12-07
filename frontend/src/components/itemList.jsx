@@ -25,7 +25,7 @@ export default function ItemList({ items }) {
             boxShadow: "0 2px 4px rgba(0,0,0,0.06)",
             cursor: "pointer",
           }}
-          onClick={() => navigate(`/item/${item.id}`)}
+          onClick={() => navigate(`/api/item/${item.id}`)}
         >
           <h3 style={{ marginBottom: "8px" }}>{item.name}</h3>
           <p style={{ margin: 0, fontSize: "14px", color: "#444" }}>
