@@ -36,7 +36,7 @@ return function (App $app) {
         $id = (int)$args['id'];
 
         $db = Database::getConnection();
-        $stmt = $db->prepare("SELECT id, name, price FROM items WHERE id = ?");
+        $stmt = $db->prepare("SELECT id, name, price, description FROM items WHERE id = ?");
         $stmt->execute([$id]);
 
         $item = $stmt->fetch();
