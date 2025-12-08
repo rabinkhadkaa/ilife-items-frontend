@@ -25,7 +25,7 @@ const Navbar = ({ user, onLogin, onLogout }) => {
   };
 
   return (
-    <AppBar position="static">
+    <AppBar position="sticky">
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
         {/* Left: Company Name */}
         <Typography variant="h6" component="div">

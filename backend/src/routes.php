@@ -20,7 +20,7 @@ return function (App $app) {
     $app->get('/api/items', function ($request, $response) {
 
         $db = Database::getConnection();
-        $stmt = $db->query("SELECT id, name, price FROM items ORDER BY id DESC");
+        $stmt = $db->query("SELECT * FROM items ORDER BY id DESC");
         $items = $stmt->fetchAll();
 
         $response->getBody()->write(json_encode($items));

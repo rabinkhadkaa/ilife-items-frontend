@@ -16,8 +16,10 @@ variables:
     value: 'ilifes-acr-docker'
   - name: acrName
     value: 'ilifesregistry.azurecr.io'
-  - name: imageName
-    value: 'buildprocure-frontend'
+  - name: imageNameFrontend
+    value: 'marketplace-frontend'
+  - name: imageNamebackend
+    value: 'marketplace-backend'
   - name: sshServiceConnection
     value: 'ilifes-ssh-connection'
   - name: dockerImageTag
@@ -25,9 +27,9 @@ variables:
 
 stages:
 
-# ------------------------------
-# Stage 1: Build Docker Image
-# ------------------------------
+# ------------------------------------------------
+# Stage 1: Build Frontend Image & Push to ACR
+# ------------------------------------------------
 - stage: Build
   displayName: 'Build and Push Frontend Docker Image'
   jobs:
@@ -37,16 +39,13 @@ stages:
         name: 'Default'
       steps:
 
-        # Checkout frontend repo
         - checkout: self
 
-        # Install Node
         - task: NodeTool@0
           inputs:
             versionSpec: '18.x'
           displayName: 'Install Node.js'
 
-        # Set VITE_API_URL dynamically based on environment
         - script: |
             if [ "${{ parameters.environment }}" = "prod" ]; then
               echo "##vso[task.setvariable variable=VITE_API_URL]http://buildprocure.com:8085"
@@ -57,89 +56,42 @@ stages:
             else
               echo "##vso[task.setvariable variable=VITE_API_URL]http://localhost:8081"
             fi
-          displayName: 'Set VITE_API_URL for environment'
+          displayName: 'Set VITE_API_URL'
 
-        # Install dependencies & build in frontend folder
         - script: |
-            cd $(Build.SourcesDirectory)/frontend
+            cd frontend
             export VITE_API_URL=$(VITE_API_URL)
             npm ci
             npm run build:${{ parameters.environment }}
           displayName: 'Build React Frontend'
 
-
-        # Debug built dist folder
-        - script: |
-            cd $(Build.SourcesDirectory)/frontend/dist
-            ls -la
-            #display VITE_API_URL value
-            echo "VITE_API_URL: $(VITE_API_URL)"
-          displayName: 'Show dist folder and VITE_API_URL'
-
-        # Login to ACR
         - task: Docker@2
           displayName: 'Login to ACR'
           inputs:
             command: login
             containerRegistry: $(dockerRegistryServiceConnection)
 
-        # ============================
-        # Step 1: Build image (no cache)
-        # ============================
         - task: Docker@2
           displayName: 'Build Frontend Image'
           inputs:
             command: build
             containerRegistry: $(dockerRegistryServiceConnection)
-            repository: $(imageName)
-            dockerfile: $(Build.SourcesDirectory)/frontend/Dockerfile
-            buildContext: $(Build.SourcesDirectory)/frontend
+            repository: $(imageNameFrontend)
+            dockerfile: frontend/Dockerfile
+            buildContext: frontend
             tags: $(dockerImageTag)
-            arguments: >
-              --no-cache
-              --build-arg CACHE_INVALIDATOR=$(Build.BuildId)
-              --build-arg VITE_API_URL=$(VITE_API_URL)
-              --build-arg BUILD_MODE=${{ parameters.environment }}
 
-        # ============================
-        # Step 2: Push image
-        # ============================
         - task: Docker@2
           displayName: 'Push Frontend Image'
           inputs:
             command: push
             containerRegistry: $(dockerRegistryServiceConnection)
-            repository: $(imageName)
+            repository: $(imageNameFrontend)
             tags: $(dockerImageTag)
 
-# Stage 2: Deploy to Server
-# ------------------------------
-- stage: Deploy
-  dependsOn: Build
-  jobs:
-    - job: DeployContainer
-      pool:
-        name: 'Default'
-      steps:
-        - task: SSH@0
-          displayName: Deploy to Server
-          inputs:
-            sshEndpoint: $(sshServiceConnection)
-            runOptions: inline
-            inline: |
-              echo "Pulling latest image..."
-              docker pull $(acrName)/$(imageName):$(dockerImageTag)
-
-              echo "Restarting container..."
-              docker stop ilifes-items-frontend || true
-              docker rm ilifes-items-frontend || true
-
-              docker run -d --name ilifes-items-frontend -p 3000:80 \
-                $(acrName)/$(imageName):$(dockerImageTag)
-
-              echo "🚀 Frontend deployed successfully!"
-              docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
-
+# ------------------------------------------------
+# Stage 2: Build Backend Image & Push to ACR
+# ------------------------------------------------
 - stage: BuildBackend
   displayName: "Build + Push Backend Image"
   jobs:
@@ -150,34 +102,51 @@ stages:
         - checkout: self
 
         - task: Docker@2
+          displayName: "Build & Push Backend"
           inputs:
             command: buildAndPush
             containerRegistry: $(dockerRegistryServiceConnection)
-            repository: ilifes-items-backend
+            repository: $(imageNamebackend)
             dockerfile: backend/Dockerfile
             buildContext: backend
             tags: latest
 
-- stage: DeployBackend
-  displayName: "Deploy Backend Container"
-  dependsOn: BuildBackend
+# ------------------------------------------------
+# Stage 3: Deploy BOTH Frontend + Backend using docker-compose.yml
+# ------------------------------------------------
+- stage: DeployAll
+  displayName: "Deploy using docker-compose.yml"
+  dependsOn:
+    - Build
+    - BuildBackend
+
   jobs:
-    - job: DeployBackendJob
+    - job: DeployAllJob
       pool:
         name: 'Default'
+
       steps:
         - task: SSH@0
+          displayName: "Deploy using Compose"
           inputs:
             sshEndpoint: $(sshServiceConnection)
-            runOptions: "inline"
+            runOptions: inline
             inline: |
-              docker pull $(acrName)/ilifes-items-backend:latest
-              docker stop ilifes-items-backend 2>/dev/null || true
-              docker rm ilifes-items-backend 2>/dev/null || true
+              echo "Logging into ACR..."
+              az acr login --name ilifesregistry
 
-              docker run -d --name ilifes-items-backend \
-                -p 8085:80 \
-                $(acrName)/ilifes-items-backend:latest
+              echo "Pulling latest images..."
+              docker pull ilifesregistry.azurecr.io/marketplace-frontend:latest
+              docker pull ilifesregistry.azurecr.io/marketplace-backend:latest
 
+              echo "Navigating to deploy folder..."
+              cd /var/www/deploy
+
+              echo "Stopping old containers..."
+              docker-compose down || true
+
+              echo "Starting with new images..."
+              docker-compose up -d --force-recreate
+
+              echo "✓ Deployment completed!"
               docker ps -a
-              echo "✓ Backend deployed!"
