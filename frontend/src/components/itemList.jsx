@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
+const DEFAULT_IMAGE = "default-item.png"; // Path to default image
 export default function ItemList({ items }) {
   const navigate = useNavigate();
 
@@ -27,6 +28,17 @@ export default function ItemList({ items }) {
           }}
           onClick={() => navigate(`/item/${item.id}`)}
         >
+            <img
+            src={item.imageUrl || DEFAULT_IMAGE}
+            alt={item.name}
+            style={{
+                width: "100%",
+                height: "150px",
+                objectFit: "cover",
+                borderRadius: "4px",
+                marginBottom: "12px",
+            }}
+            />
           <h3 style={{ marginBottom: "8px" }}>{item.name}</h3>
           <p style={{ margin: 0, fontSize: "14px", color: "#444" }}>
             Price: ${item.price}

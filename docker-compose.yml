@@ -1,36 +1,20 @@
 version: "3.9"
 
 services:
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: marketplace-backend
+  ilifes-items-backend:
+    image: ilifesregistry.azurecr.io/marketplace-backend:latest
+    container_name: ilifes-items-backend
     ports:
-      - "8081:80"
-    environment:
-      DB_HOST: ${DB_HOST}
-      DB_DATABASE: ${DB_DATABASE}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
+      - "8085:80"
+    volumes:
+      - /var/www/html/marketplace/uploads:/var/www/html/marketplace/uploads
+    restart: always
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: marketplace-frontend
-    environment:
-      VITE_API_URL: ${VITE_API_URL}
-    depends_on:
-      - backend
-
-  reverse-proxy:
-    build:
-      context: ./reverse-proxy
-      dockerfile: Dockerfile
-    container_name: marketplace-nginx
+  ilifes-items-frontend:
+    image: ilifesregistry.azurecr.io/marketplace-frontend:latest
+    container_name: ilifes-items-frontend
     ports:
-      - "80:80"
-    depends_on:
-      - frontend
-      - backend
+      - "3000:80"
+    volumes:
+      - /var/www/html/marketplace/uploads:/usr/share/nginx/html/uploads
+    restart: always
