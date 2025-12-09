@@ -148,7 +148,7 @@ stages:
               echo "Uploading compose file..."
               scp -o StrictHostKeyChecking=no \
                 "$(Build.SourcesDirectory)/docker-compose-marketplace.yml" \
-                $(username)@$(hostname):/var/www/marketplace-deploy/
+                $SSH_USER@$SSH_HOST:/var/www/html/marketplace-deploy/docker-compose-marketplace.yml
 
         # Deploy
         - task: SSH@0
@@ -162,7 +162,7 @@ stages:
               docker pull ilifesregistry.azurecr.io/ilifes-items-backend:latest
 
               echo "Navigating to deployment directory..."
-              cd /var/www/marketplace-deploy
+              cd /var/www/html/marketplace-deploy
 
               echo "Stopping existing containers..."
               docker-compose -f docker-compose-marketplace.yml down --remove-orphans || true
