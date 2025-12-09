@@ -139,19 +139,14 @@ stages:
           displayName: "Wait for Image Availability"
 
         # Upload docker-compose-marketplace.yml using SCP
-        - task: SSH@0
-          displayName: "Upload docker-compose-marketplace.yml to Server"
+        - task: SSHCopyFiles@0
+          displayName: "Upload docker-compose-marketplace.yml"
           inputs:
             sshEndpoint: $(sshServiceConnection)
-            runOptions: inline
-            inline: |
-              echo "Uploading compose file using STDIN..."
+            sourceFolder: "$(Build.SourcesDirectory)"
+            contents: "docker-compose-marketplace.yml"
+            targetFolder: "/var/www/html/marketplace-deploy"
 
-              cat << 'EOF' > /var/www/html/docker-compose-marketplace.yml
-              $(cat $(Build.SourcesDirectory)/docker-compose-marketplace.yml)
-              EOF
-
-              echo "File uploaded!"
         # Deploy
         - task: SSH@0
           displayName: "Deploy using Compose on Remote Server"
