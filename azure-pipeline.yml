@@ -138,6 +138,14 @@ stages:
             echo "Waiting for ACR to finish digest publishing..."
             sleep 3
           displayName: "Wait for Image Availability"
+        
+        - task: SSHUpload@0
+          displayName: "Upload docker-compose-marketplace.yml"
+          inputs:
+            sshEndpoint: $(sshServiceConnection)
+            sourceFolder: "$(Build.SourcesDirectory)"
+            contents: "docker-compose-marketplace.yml"
+            targetFolder: "/var/www/marketplace-deploy"
 
         - task: SSH@0
           displayName: "Deploy using Compose on Remote Server"
@@ -153,10 +161,10 @@ stages:
               cd /var/www/deploy
 
               echo "Stopping existing containers..."
-              docker-compose down --remove-orphans || true
+              docker-compose -f docker-compose-marketplace.yml down --remove-orphans || true
 
               echo "Starting updated containers..."
-              docker-compose up -d --force-recreate
+              docker-compose -f docker-compose-marketplace.yml up -d --force-recreate
 
               echo "✓ Deployment completed!"
               docker ps -a
