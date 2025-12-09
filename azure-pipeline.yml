@@ -147,7 +147,7 @@ stages:
             inline: |
               echo "Uploading compose file using STDIN..."
 
-              cat << 'EOF' > /var/www/html/marketplace-deploy/docker-compose-marketplace.yml
+              cat << 'EOF' > /var/www/html/docker-compose-marketplace.yml
               $(cat $(Build.SourcesDirectory)/docker-compose-marketplace.yml)
               EOF
 
@@ -164,7 +164,7 @@ stages:
               docker pull ilifesregistry.azurecr.io/ilifes-items-backend:latest
 
               echo "Navigating to deployment directory..."
-              cd /var/www/html/marketplace-deploy
+              cd /var/www/html
 
               echo "Stopping existing containers..."
               docker-compose -f docker-compose-marketplace.yml down --remove-orphans || true
