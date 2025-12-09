@@ -21,7 +21,7 @@ return function (App $app) {
 
         $db = Database::getConnection();
         $stmt = $db->query("SELECT id, name, price, description, image_url FROM items ORDER BY id DESC");
-        $items = $stmt->fetchAll();
+        $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $response->getBody()->write(json_encode($items));
         return $response->withHeader('Content-Type', 'application/json');
