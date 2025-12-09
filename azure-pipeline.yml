@@ -138,6 +138,15 @@ stages:
             echo "Waiting for ACR to finish digest publishing..."
             sleep 3
           displayName: "Wait for Image Availability"
+
+        - task: SSH@0
+          displayName: "Upload docker-compose file to Server"
+          inputs:
+            sshEndpoint: $(sshServiceConnection)
+            runOptions: "inline"
+            inline: |
+              echo "Uploading compose file..."
+            readyTimeout: "20000"
         
         - task: SSHUpload@0
           displayName: "Upload docker-compose-marketplace.yml"
