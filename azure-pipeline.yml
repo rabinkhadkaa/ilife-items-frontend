@@ -126,26 +126,48 @@ stages:
         name: 'Default'
 
       steps:
+        - stage: DeployAll
+  displayName: "Deploy using docker-compose.yml"
+  dependsOn:
+    - Build
+    - BuildBackend
+
+  jobs:
+    - job: DeployAllJob
+      pool:
+        name: 'Default'
+
+      steps:
+        # Login to ACR BEFORE connecting via SSH
+        - task: Docker@2
+          displayName: 'Login to ACR'
+          inputs:
+            command: login
+            containerRegistry: $(dockerRegistryServiceConnection)
+
+        # Optional sleep to ensure image availability
+        - script: |
+            echo "Waiting for ACR to finish digest publishing..."
+            sleep 3
+          displayName: "Wait for Image Availability"
+
         - task: SSH@0
-          displayName: "Deploy using Compose"
+          displayName: "Deploy using Compose on Remote Server"
           inputs:
             sshEndpoint: $(sshServiceConnection)
             runOptions: inline
             inline: |
-              echo "Logging into ACR..."
-              az acr login --name ilifesregistry
-
               echo "Pulling latest images..."
-              docker pull ilifesregistry.azurecr.io/marketplace-frontend:latest
-              docker pull ilifesregistry.azurecr.io/marketplace-backend:latest
+              docker pull ilifesregistry.azurecr.io/buildprocure-frontend:latest
+              docker pull ilifesregistry.azurecr.io/ilifes-items-backend:latest
 
-              echo "Navigating to deploy folder..."
+              echo "Navigating to deployment directory..."
               cd /var/www/deploy
 
-              echo "Stopping old containers..."
-              docker-compose down || true
+              echo "Stopping existing containers..."
+              docker-compose down --remove-orphans || true
 
-              echo "Starting with new images..."
+              echo "Starting updated containers..."
               docker-compose up -d --force-recreate
 
               echo "✓ Deployment completed!"
