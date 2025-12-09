@@ -2,11 +2,13 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 const DEFAULT_IMAGE = "default-item.png"; // Path to default image
+
 export default function ItemList({ items }) {
   const navigate = useNavigate();
 
   if (!items.length) return <p>No items available</p>;
-
+  
+console.log(items);
   return (
     <div
       style={{
