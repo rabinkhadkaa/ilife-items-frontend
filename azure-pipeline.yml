@@ -126,18 +126,6 @@ stages:
         name: 'Default'
 
       steps:
-        - stage: DeployAll
-  displayName: "Deploy using docker-compose.yml"
-  dependsOn:
-    - Build
-    - BuildBackend
-
-  jobs:
-    - job: DeployAllJob
-      pool:
-        name: 'Default'
-
-      steps:
         # Login to ACR BEFORE connecting via SSH
         - task: Docker@2
           displayName: 'Login to ACR'
