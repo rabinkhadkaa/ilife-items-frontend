@@ -133,29 +133,24 @@ stages:
             command: login
             containerRegistry: $(dockerRegistryServiceConnection)
 
-        # Optional sleep to ensure image availability
         - script: |
-            echo "Waiting for ACR to finish digest publishing..."
+            echo "Waiting for ACR..."
             sleep 3
           displayName: "Wait for Image Availability"
 
+        # Upload docker-compose-marketplace.yml using SCP
         - task: SSH@0
-          displayName: "Upload docker-compose file to Server"
+          displayName: "Upload docker-compose-marketplace.yml to Server"
           inputs:
             sshEndpoint: $(sshServiceConnection)
-            runOptions: "inline"
+            runOptions: inline
             inline: |
               echo "Uploading compose file..."
-            readyTimeout: "20000"
-        
-        - task: SSHUpload@0
-          displayName: "Upload docker-compose-marketplace.yml"
-          inputs:
-            sshEndpoint: $(sshServiceConnection)
-            sourceFolder: "$(Build.SourcesDirectory)"
-            contents: "docker-compose-marketplace.yml"
-            targetFolder: "/var/www/marketplace-deploy"
+              scp -o StrictHostKeyChecking=no \
+                "$(Build.SourcesDirectory)/docker-compose-marketplace.yml" \
+                $(username)@$(hostname):/var/www/marketplace-deploy/
 
+        # Deploy
         - task: SSH@0
           displayName: "Deploy using Compose on Remote Server"
           inputs:
@@ -167,7 +162,7 @@ stages:
               docker pull ilifesregistry.azurecr.io/ilifes-items-backend:latest
 
               echo "Navigating to deployment directory..."
-              cd /var/www/deploy
+              cd /var/www/marketplace-deploy
 
               echo "Stopping existing containers..."
               docker-compose -f docker-compose-marketplace.yml down --remove-orphans || true
