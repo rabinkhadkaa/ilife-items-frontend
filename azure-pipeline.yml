@@ -139,13 +139,13 @@ stages:
           displayName: "Wait for Image Availability"
 
         # Upload docker-compose-marketplace.yml using SCP
-        - task: SSHCopyFiles@0
+        - task: CopyFilesOverSSH@0
           displayName: "Upload docker-compose-marketplace.yml"
           inputs:
             sshEndpoint: $(sshServiceConnection)
             sourceFolder: "$(Build.SourcesDirectory)"
             contents: "docker-compose-marketplace.yml"
-            targetFolder: "/var/www/html/marketplace-deploy"
+            targetFolder: "/var/www/html"
 
         # Deploy
         - task: SSH@0
