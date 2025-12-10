@@ -13,10 +13,15 @@ RUN ls -al ./
 RUN cat .env.$BUILD_MODE || echo "⚠️ Env file missing!"
 RUN echo "BUILD_MODE = $BUILD_MODE"
 
+# Copy env files BEFORE build
+COPY .env* ./
 COPY package.json package-lock.json ./
 RUN npm install
 
 COPY . ./
+
+RUN ls -al ./
+
 RUN npm run build --mode $BUILD_MODE
 
 # Step 2: Serve using Nginx
