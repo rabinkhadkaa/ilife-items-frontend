@@ -22,7 +22,7 @@ COPY . ./
 
 RUN ls -al ./
 
-RUN npm run build --mode $BUILD_MODE
+RUN npm run build:$BUILD_MODE
 
 # Step 2: Serve using Nginx
 # Step 2: Serve using Nginx
