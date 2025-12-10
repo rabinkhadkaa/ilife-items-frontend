@@ -4,19 +4,16 @@ WORKDIR /app
 
 # Pass VITE_API_URL as build-arg
 ARG BUILD_MODE=prod
-ARG VITE_API_URL
 ARG CACHE_INVALIDATOR=1
 
 ENV BUILD_MODE=$BUILD_MODE
-ENV VITE_API_URL=$VITE_API_URL
 
 RUN echo "BUILD_MODE = $BUILD_MODE"
-RUN echo "VITE_API_URL = $VITE_API_URL"
 COPY package.json package-lock.json ./
 RUN npm install
 
 COPY . ./
-RUN npm run build:${BUILD_MODE}   # VITE_API_URL will now be used in the build
+RUN npm run build --mode $BUILD_MODE
 
 # Step 2: Serve using Nginx
 # Step 2: Serve using Nginx
