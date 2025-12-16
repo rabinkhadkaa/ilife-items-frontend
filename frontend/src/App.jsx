@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
-import ItemList from "./components/itemList";
+import ItemList from "./components/Homepage";
 import ItemDetails from "./components/itemDetails"; // We'll create this
-import Navbar from "./components/navbar"; // import the Navbar
+//import Navbar from "./components/navbar"; // import the Navbar
 import api from "./services/api";
 import { toast } from "react-toastify";
 
@@ -39,7 +39,7 @@ function App() {
   return (
     <div>
       {/* Navbar */}
-      <Navbar user={user} onLogin={handleLogin} onLogout={handleLogout} />
+      {/* <Navbar user={user} onLogin={handleLogin} onLogout={handleLogout} /> */}
 
     <Routes>
       <Route

@@ -1,73 +1,46 @@
-import React, { useState } from "react";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import IconButton from "@mui/material/IconButton";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import AccountCircle from "@mui/icons-material/AccountCircle";
+import React from "react";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  TextField,
+  Button,
+  Box,
+} from "@mui/material";
 
-const Navbar = ({ user, onLogin, onLogout }) => {
-  const [anchorEl, setAnchorEl] = useState(null);
-
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleLogout = () => {
-    handleClose();
-    onLogout();
-  };
-
+export default function Navbar() {
   return (
-    <AppBar position="sticky">
+    <AppBar position="static" color="default" sx={{ boxShadow: 1 }}>
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-        {/* Left: Company Name */}
-        <Typography variant="h6" component="div">
-          BuildProcure
-        </Typography>
+        {/* Logo */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <img
+            src="/Logo-BP.png"
+            alt="Logo"
+            style={{ height: 42 }}
+          />
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: "bold", color: "#1a73e8" }}
+          >
+            BuildProcure
+          </Typography>
+        </Box>
 
-        {/* Right: Login / User Menu */}
-        {!user ? (
-          <Button color="inherit" onClick={onLogin}>
-            Login
-          </Button>
-        ) : (
-          <div>
-            <IconButton
-              size="large"
-              edge="end"
-              color="inherit"
-              onClick={handleMenu}
-            >
-              <AccountCircle />
-            </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "right",
-              }}
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-            >
-              <MenuItem disabled>Hello, {user.name}</MenuItem>
-              <MenuItem onClick={handleLogout}>Logout</MenuItem>
-            </Menu>
-          </div>
-        )}
+        {/* Search */}
+        <TextField
+          placeholder="Search products..."
+          variant="outlined"
+          size="small"
+          sx={{ width: "40%", background: "white", borderRadius: 1 }}
+        />
+
+        {/* Actions */}
+        <Box sx={{ display: "flex", gap: 2 }}>
+          <Button variant="text">Login</Button>
+          <Button variant="contained">Cart</Button>
+        </Box>
       </Toolbar>
     </AppBar>
   );
-};
-
-export default Navbar;
+}
