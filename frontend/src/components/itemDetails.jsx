@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../services/api";
 import { toast } from "react-toastify";
-import Navbar from "./navbar.jsx";
+import Navbar from "./Nav_bar.jsx";
 import { Box, Container, Typography } from "@mui/material";
 
 export default function ItemDetails() {
