@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../services/api";
 import { toast } from "react-toastify";
+import Navbar from "./Navbar.jsx";
+import { Box, Container, Typography } from "@mui/material";
 
 export default function ItemDetails() {
   const { id } = useParams();
@@ -25,11 +27,19 @@ export default function ItemDetails() {
   if (loading) return <p>Loading...</p>;
   if (!item) return <p>Item not found</p>;
 
-  return (
-    <div style={{ padding: "20px" }}>
-      <h1>{item.name}</h1>
-      <p>Price: ${item.price}</p>
-      <p>Description: {item.description || "No description available"}</p>
-    </div>
+ return (
+    <>
+      <Navbar />
+
+      <Container sx={{ mt: 4 }}>
+        <Typography variant="h4" fontWeight="bold" gutterBottom>
+          {item.name}
+        </Typography>
+        <Typography variant="h6">Price: ${item.price}</Typography>
+        <Typography sx={{ mt: 2 }}>
+          Description: {item.description || "No description available"}
+        </Typography>
+      </Container>
+    </>
   );
 }
