@@ -9,6 +9,8 @@ services:
     volumes:
       - /var/www/html/marketplace/uploads:/var/www/html/marketplace/uploads
     restart: always
+    networks:
+      - app-network  # Join the shared network
 
   ilifes-items-frontend:
     image: ilifesregistry.azurecr.io/marketplace-frontend:latest
@@ -18,3 +20,9 @@ services:
     volumes:
       - /var/www/html/marketplace/uploads:/usr/share/nginx/html/uploads
     restart: always
+    networks:
+      - app-network  # Join the shared network
+
+networks:
+  app-network:
+    external: true  # This tells Docker the network is managed by your other compose file
