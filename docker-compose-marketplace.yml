@@ -26,3 +26,4 @@ services:
 networks:
   app-network:
     external: true  # This tells Docker the network is managed by your other compose file
+    name: html_app-network
