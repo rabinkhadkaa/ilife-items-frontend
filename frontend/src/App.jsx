@@ -5,6 +5,7 @@ import ItemDetails from "./components/itemDetails"; // We'll create this
 //import Navbar from "./components/navbar"; // import the Navbar
 import api from "./services/api";
 import { toast } from "react-toastify";
+import { checkAuth } from "./services/authService";
 
 function App() {
   const [items, setItems] = useState([]);
@@ -23,18 +24,32 @@ function App() {
   };
 
   useEffect(() => {
-    loadItems();
+
+    const initializeApp = async () => {
+      try {
+
+        // Step 1: Check login
+        const auth = await checkAuth();
+        setUser(auth.user);
+
+        // Step 2: Load items if logged in
+        await loadItems();
+
+      } catch (err) {
+
+        // Not logged in → redirect to ProcureX login
+        window.location.href = "https://buildprocure.com/login.php";
+
+      }
+    };
+
+    initializeApp();
+
   }, []);
 
-  // Login / logout handlers
-  const handleLogin = () => {
-    // Example: simulate login
-    setUser({ name: "John Doe" });
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-  };
+  if (!user) {
+    return <p style={{ padding: "20px" }}>Checking login...</p>;
+  }
 
   return (
     <div>

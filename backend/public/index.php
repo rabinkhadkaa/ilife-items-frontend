@@ -3,6 +3,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use Dotenv\Dotenv;
 use Slim\Factory\AppFactory;
+use Marketplace\Middleware\JwtMiddleware;
 
 $env = getenv('APP_ENV') ?: 'local';
 
@@ -41,12 +42,14 @@ $app->options('/{routes:.+}', function ($request, $response) {
     return $response;
 });
 
+$jwtMiddleware = new JwtMiddleware();
+
 // Load DB + Routes
 // Load DB file normally — do NOT call it
 require __DIR__ . '/../src/database.php';
 
 // Load routes (this file returns a function)
 $routes = require __DIR__ . '/../src/routes.php';
-$routes($app);
+$routes($app, $jwtMiddleware);
 
 $app->run();

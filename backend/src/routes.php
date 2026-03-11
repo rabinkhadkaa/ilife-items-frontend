@@ -3,7 +3,7 @@
 use Slim\App;
 use App\Database;
 
-return function (App $app) {
+return function (App $app, $jwtMiddleware) {
 
     // Health check route
     $app->get('/', function ($request, $response) {
@@ -11,7 +11,7 @@ return function (App $app) {
             "status" => "Backend API is running!"
         ]));
         return $response->withHeader('Content-Type', 'application/json');
-    });
+    })->add($jwtMiddleware); // Protect this route with JWT middleware
 
     /**
      * GET /api/items
@@ -25,7 +25,7 @@ return function (App $app) {
 
         $response->getBody()->write(json_encode($items));
         return $response->withHeader('Content-Type', 'application/json');
-    });
+    })->add($jwtMiddleware); // Protect this route with JWT middleware
 
     /**
      * GET /api/item/{id}
@@ -48,7 +48,7 @@ return function (App $app) {
 
         $response->getBody()->write(json_encode($item));
         return $response->withHeader('Content-Type', 'application/json');
-    });
+    })->add($jwtMiddleware);
 
     /**
      * POST /api/item
@@ -79,5 +79,5 @@ return function (App $app) {
         ]));
 
         return $response->withHeader('Content-Type', 'application/json');
-    });
+    })->add($jwtMiddleware);
 };
